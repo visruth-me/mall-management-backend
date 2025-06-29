@@ -35,14 +35,15 @@ const tenantSchema = new mongoose.Schema({
   }
 })
 
-tenantSchema.set('toJson', {
+tenantSchema.set('toJSON', {
   transform: (document, returnedObject) => {
     returnedObject.id = returnedObject._id.toString()
     delete returnedObject._id
-    delete returnedObject._v
+    delete returnedObject.__v
+    delete returnedObject.passwordHash
   }
 })
 
-const Tenant = mongoose.model('Customer', tenantSchema)
+const Tenant = mongoose.model('Tenant', tenantSchema)
 
 module.exports = Tenant

@@ -1,7 +1,7 @@
 const feedbackRouter = require('express').Router()
 const Feedback = require('../models/feedback')
 const Shop = require('../models/shop')
-const jwt = require('jsonwebtoken')
+const helper = require('./getToken')
 
 feedbackRouter.get('/',async(request,response) => {
   const feedbacks = await Feedback.find({})
@@ -9,16 +9,14 @@ feedbackRouter.get('/',async(request,response) => {
 })
 
 feedbackRouter.post('/',async(request,response) => {
-  const authHeader = request.header('Authorization')
   let userId = 'anonymous'
 
-  if (authHeader?.startsWith('Bearer ')) {
-    const token = authHeader.split(' ')[1]
-    try {
-      const decoded = jwt.verify(token, process.env.SECRET)
-      userId = decoded.id
-    } catch {
-      return response.status(401).json({ error: 'token invalid' })
+  try {
+    userId = helper.getUserIdFromToken(request)
+  } catch (err) {
+    // If token is missing or invalid, keep user as anonymous
+    if (err.message !== 'Token missing or malformed') {
+      return response.status(401).json({ error: err.message })
     }
   }
 

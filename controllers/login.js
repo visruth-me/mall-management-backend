@@ -1,11 +1,18 @@
 const jwt = require('jsonwebtoken')
 const bcrypt = require('bcrypt')
 const loginRouter = require('express').Router()
-const User = require('../models/user')
+
+const models = {
+  admin: require('../models/admin'),
+  customer: require('../models/customer'),
+  employee: require('../models/employee'),
+  tenant: require('../models/tenant')
+}
 
 loginRouter.post('/', async (request, response) => {
-  const { username, password } = request.body
+  const { type, username, password } = request.body
 
+  const User = models[type]
   const user = await User.findOne({ username })
   const passwordCorrect = user === null
     ? false
@@ -19,7 +26,8 @@ loginRouter.post('/', async (request, response) => {
 
   const userForToken = {
     username: user.username,
-    id: user._id
+    id: user._id,
+    type: type
   }
 
   const token = jwt.sign(
@@ -30,7 +38,7 @@ loginRouter.post('/', async (request, response) => {
 
   response
     .status(200)
-    .send({ token, username: user.username, name: user.name })
+    .send({ token, username: user.username, name: user.name, type: type })
 })
 
 module.exports = loginRouter

@@ -52,6 +52,42 @@ describe('when there is initially one shop in db', () => {
 
     assert.strictEqual(res.body.name, 'ShopOne')
   })
+  test('POST /api/shops successfully creates a shop', async () => {
+    const newShop = {
+      name: 'Green Mart',
+      category: 'Electronics',
+      tenantID: new mongoose.Types.ObjectId().toString(),
+      description: 'A store for fresh vegetables and fruits.',
+      location: 'Block A, Main Market Street',
+      email: 'greenmart@example.com',
+      phone: '9876543210'
+    }
+
+    const res = await api
+      .post('/api/shops')
+      .send(newShop)
+      .expect(201)
+      .expect('Content-Type', /application\/json/)
+
+    assert.strictEqual(res.body.name, newShop.name)
+    assert.strictEqual(res.body.category, newShop.category)
+
+    const addedShop = await Shop.findOne({ name: newShop.name })
+    assert(addedShop)
+    assert.strictEqual(addedShop.phone, newShop.phone)
+  })
+
+  test('POST /api/shops fails with 400 if data is invalid', async () => {
+    const invalidShop = {
+      name: 'Incomplete Shop'
+      // missing required fields like tenantID, category, etc.
+    }
+
+    await api
+      .post('/api/shops')
+      .send(invalidShop)
+      .expect(400)
+  })
 })
 
 after(async () => {

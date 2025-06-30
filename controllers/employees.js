@@ -51,7 +51,7 @@ employeeRouter.put('/:id', async (request, response) => {
   }
 })
 
-employeeRouter.post('/', async (request, response) => {
+employeeRouter.post('/', async (request, response, next) => {
   try {
     const { username, name, email, phone, password } = request.body
     const saltRounds = 10
@@ -69,8 +69,7 @@ employeeRouter.post('/', async (request, response) => {
 
     response.status(201).json(savedEmployee)
   } catch (error){
-    console.error('Failed to save employee', error)
-    response.status(500).json({ error: 'Failed to save employee' })
+    next(error)
   }
 })
 

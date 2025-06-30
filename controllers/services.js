@@ -11,7 +11,7 @@ serviceRouter.get('/',async(request,response) => {
   response.json(services)
 })
 
-serviceRouter.post('/',async(request,response) => {
+serviceRouter.post('/',async(request,response,next) => {
   try{
     const { name, description } = request.body
     if (!name || !description) {
@@ -23,8 +23,8 @@ serviceRouter.post('/',async(request,response) => {
     })
     await service.save()
     response.status(201).json({ message: 'Service submitted' })
-  } catch{
-    response.status(500).json({ error: 'Failed to submit service' })
+  } catch(error) {
+    next(error)
   }
 })
 

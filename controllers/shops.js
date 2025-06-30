@@ -10,15 +10,20 @@ shopsRouter.get('/categories', async (request, response) => {
   }
 })
 
-shopsRouter.get('/names',async (request,response) => {
+shopsRouter.get('/names', async (request, response) => {
   try {
-    const category = request.query.category
+    const { category } = request.query
+
     if (!category) {
       return response.status(400).json({ error: 'Category query parameter required' })
     }
-    const shops = await Shop.find({ category }, 'name')
+
+    const query = category === 'All' ? {} : { category }
+    const shops = await Shop.find(query, 'name')
+
     const shopNames = shops.map(shop => shop.name)
     response.json(shopNames)
+
   } catch {
     response.status(500).json({ error: 'Failed to fetch shop names' })
   }
@@ -33,6 +38,25 @@ shopsRouter.get('/:id',async(request,response) => {
     response.json(shop)
   } catch{
     response.status(500).json({ error: 'Failed to fetch shop info' })
+  }
+})
+
+shopsRouter.post('/',async(request,response,next) => {
+  try{
+    const { name, category, tenantID, description, location, email, phone } = request.body
+    const shop = new Shop({
+      name,
+      category,
+      tenantID,
+      description,
+      location,
+      email,
+      phone
+    })
+    const savedShop = await shop.save()
+    response.status(201).json(savedShop)
+  } catch (error){
+    next(error)
   }
 })
 

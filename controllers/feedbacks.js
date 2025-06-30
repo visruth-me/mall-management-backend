@@ -8,12 +8,12 @@ feedbackRouter.get('/',async(request,response) => {
   response.json(feedbacks)
 })
 
-feedbackRouter.post('/',async(request,response) => {
+feedbackRouter.post('/',async(request,response, next) => {
   let userId
 
   try {
     userId = helper.getUserIdFromToken(request)
-  } catch (err) {
+  } catch {
     return response.status(401).json({ error: 'Authentication required' })
   }
 
@@ -36,8 +36,8 @@ feedbackRouter.post('/',async(request,response) => {
     await feedback.save()
 
     response.status(201).json({ message: 'Feedback submitted', feedback })
-  } catch{
-    response.status(500).json({ error: 'Failed to submit feedback' })
+  } catch(error) {
+    next(error)
   }
 
 })

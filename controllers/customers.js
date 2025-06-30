@@ -1,7 +1,6 @@
 const customerRouter = require('express').Router()
 const bcrypt = require('bcrypt')
 const Customer = require('../models/customer')
-const bcrypt = require('bcrypt')
 
 customerRouter.get('/', async (request, response) => {
   try {
@@ -52,7 +51,7 @@ customerRouter.put('/:id', async (request, response) => {
   }
 })
 
-customerRouter.post('/', async (request, response) => {
+customerRouter.post('/', async (request, response, next) => {
   try {
     const { username, name, email, phone, password } = request.body
     const saltRounds = 10
@@ -70,8 +69,7 @@ customerRouter.post('/', async (request, response) => {
 
     response.status(201).json(savedCustomer)
   } catch (error){
-    console.error('Failed to save customer', error)
-    response.status(500).json({ error: 'Failed to save customer' })
+    next(error)
   }
 })
 

@@ -13,7 +13,7 @@ discountRouter.get('/',async(request,response) => {
   response.json(discounts)
 })
 
-discountRouter.post('/',async(request,response) => {
+discountRouter.post('/',async(request,response,next) => {
   let userId
   try{
     userId = helper.getUserIdFromToken(request)
@@ -36,8 +36,8 @@ discountRouter.post('/',async(request,response) => {
     })
     await discount.save()
     response.status(201).json({ message: 'Discount submitted' })
-  } catch{
-    response.status(500).json({ error: 'Failed to submit discount' })
+  } catch(error){
+    next(error)
   }
 })
 

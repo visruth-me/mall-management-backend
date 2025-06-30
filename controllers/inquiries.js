@@ -7,7 +7,7 @@ inquiryRouter.get('/',async(request,response) => {
   response.json(inquiries)
 })
 
-inquiryRouter.post('/',async(request,response) => {
+inquiryRouter.post('/',async(request,response,next) => {
   let userId
   try{
     userId = helper.getUserIdFromToken(request)
@@ -28,8 +28,8 @@ inquiryRouter.post('/',async(request,response) => {
     await inquiry.save()
 
     response.status(201).json({ message: 'Inquiry submitted', inquiry })
-  } catch{
-    response.status(500).json({ error: 'Failed to submit inquiry' })
+  } catch(error) {
+    next(error)
   }
 
 })

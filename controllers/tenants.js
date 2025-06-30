@@ -52,7 +52,7 @@ tenantsRouter.put('/:id', async (request, response) => {
   }
 })
 
-tenantsRouter.post('/', async (request, response) => {
+tenantsRouter.post('/', async (request, response,next) => {
   try {
     const { username, name, email, phone, password, shopName, rent } = request.body
     const saltRounds = 10
@@ -74,8 +74,7 @@ tenantsRouter.post('/', async (request, response) => {
 
     response.status(201).json(savedTenant)
   } catch (error){
-    console.error('Failed to save tenant', error)
-    response.status(500).json({ error: 'Failed to save tenant' })
+    next(error)
   }
 })
 

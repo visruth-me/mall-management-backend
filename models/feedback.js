@@ -2,8 +2,9 @@ const mongoose = require('mongoose')
 
 const feedbackSchema = new mongoose.Schema({
   customerID: {
-    type: mongoose.Schema.Types.Mixed,
-    default: 'anonymous'
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Customer',
+    required: true
   },
   shopID: {
     type: mongoose.Schema.Types.ObjectId,

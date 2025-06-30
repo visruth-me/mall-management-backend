@@ -9,15 +9,12 @@ feedbackRouter.get('/',async(request,response) => {
 })
 
 feedbackRouter.post('/',async(request,response) => {
-  let userId = 'anonymous'
+  let userId
 
   try {
     userId = helper.getUserIdFromToken(request)
   } catch (err) {
-    // If token is missing or invalid, keep user as anonymous
-    if (err.message !== 'Token missing or malformed') {
-      return response.status(401).json({ error: err.message })
-    }
+    return response.status(401).json({ error: 'Authentication required' })
   }
 
   try{

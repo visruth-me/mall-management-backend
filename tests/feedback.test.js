@@ -2,7 +2,9 @@ const { test, describe, beforeEach, after } = require('node:test')
 const assert = require('node:assert')
 const supertest = require('supertest')
 const mongoose = require('mongoose')
-const app = require('../app') // your Express app
+const jwt = require('jsonwebtoken')
+const app = require('../app')
+
 const Feedback = require('../models/feedback')
 const Shop = require('../models/shop')
 
@@ -11,14 +13,14 @@ const api = supertest(app)
 process.env.SECRET = process.env.SECRET || 'testsecret'
 
 describe('Feedback API tests', () => {
-  let shopId
+  let shopName
+  let token
+  let userId
 
   beforeEach(async () => {
-    // Clear DB collections
     await Feedback.deleteMany({})
     await Shop.deleteMany({})
 
-    // Create a shop for feedbacks
     const shop = new Shop({
       name: 'TestShop',
       category: 'Food',
@@ -28,9 +30,13 @@ describe('Feedback API tests', () => {
       email: 'testshop@example.com',
       phone: '1234567890'
     })
-    const savedShop = await shop.save()
-    shopId = savedShop._id.toString()
 
+    const savedShop = await shop.save()
+    shopName = savedShop.name
+
+    // mock user ID and generate token
+    userId = new mongoose.Types.ObjectId().toString()
+    token = jwt.sign({ id: userId }, process.env.SECRET)
   })
 
   test('GET /api/feedbacks returns empty array initially', async () => {
@@ -45,48 +51,50 @@ describe('Feedback API tests', () => {
 
   test('POST /api/feedbacks creates feedback successfully', async () => {
     const newFeedback = {
-      shopID: shopId,
+      shopName,
       rating: 4,
-      description: 'Great service',
-      customerID: 'customer123'
+      description: 'Great service'
     }
 
     const res = await api
       .post('/api/feedbacks')
+      .set('Authorization', `Bearer ${token}`)
       .send(newFeedback)
       .expect(201)
       .expect('Content-Type', /application\/json/)
 
-    assert.strictEqual(res.body.message, 'Feedback created')
+    assert.strictEqual(res.body.message, 'Feedback submitted')
     assert.strictEqual(res.body.feedback.rating, 4)
     assert.strictEqual(res.body.feedback.description, 'Great service')
-    assert.strictEqual(res.body.feedback.customerID, 'customer123')
+    assert.strictEqual(res.body.feedback.customerID, userId)
   })
 
   test('POST /api/feedbacks fails with missing rating', async () => {
     const newFeedback = {
-      shopID: shopId,
+      shopName,
       description: 'Missing rating'
     }
 
     await api
       .post('/api/feedbacks')
+      .set('Authorization', `Bearer ${token}`)
       .send(newFeedback)
       .expect(400)
   })
 
   test('GET /api/feedbacks/shop/:shopID returns feedbacks for that shop', async () => {
-    // Add a feedback first
+    const shop = await Shop.findOne({ name: shopName })
+
     const feedback = new Feedback({
-      shopID: shopId,
+      shopID: shop._id,
       rating: 5,
       description: 'Excellent!',
-      customerID: 'cust1'
+      customerID: userId
     })
     await feedback.save()
 
     const res = await api
-      .get(`/api/feedbacks/shop/${shopId}`)
+      .get(`/api/feedbacks/shop/${shop._id}`)
       .expect(200)
       .expect('Content-Type', /application\/json/)
 

@@ -25,32 +25,6 @@ employeeRouter.get('/:id', async (request, response) => {
   }
 })
 
-employeeRouter.put('/:id', async (request, response) => {
-  try {
-    const { password, ...rest } = request.body
-    const update = { ...rest }
-
-    if (password) {
-      const saltRounds = 10
-      update.passwordHash = await bcrypt.hash(password, saltRounds)
-    }
-
-    const updatedCustomer = await Employee.findByIdAndUpdate(
-      request.params.id,
-      update,
-      { new: true, runValidators: true, context: 'query' }
-    )
-
-    if (!updatedCustomer) {
-      return response.status(404).json({ error: 'Employee not found' })
-    }
-
-    response.json(updatedCustomer)
-  } catch (error) {
-    response.status(400).json({ error: error.message })
-  }
-})
-
 employeeRouter.post('/', async (request, response, next) => {
   try {
     const { username, name, email, phone, password } = request.body

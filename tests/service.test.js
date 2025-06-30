@@ -84,7 +84,7 @@ describe('service API tests', () => {
 
   test('PUT /api/services/:id returns 404 for unknown id', async () => {
     const fakeId = new mongoose.Types.ObjectId()
-    const response = await api
+    await api
       .put(`/api/services/${fakeId}`)
       .send({ isAvailable: false })
       .expect(404)

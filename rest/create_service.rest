@@ -1,0 +1,8 @@
+POST http://localhost:3001/api/services
+Content-Type: application/json
+
+{
+  "name": "Parking",
+  "description": "24/7 secure underground parking with EV charging support.",
+  "isAvailable": true
+}

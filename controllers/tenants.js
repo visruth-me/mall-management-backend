@@ -26,32 +26,6 @@ tenantsRouter.get('/:id', async (request, response) => {
   }
 })
 
-tenantsRouter.put('/:id', async (request, response) => {
-  try {
-    const { password, ...rest } = request.body
-    const update = { ...rest }
-
-    if (password) {
-      const saltRounds = 10
-      update.passwordHash = await bcrypt.hash(password, saltRounds)
-    }
-
-    const updatedTenant = await Tenant.findByIdAndUpdate(
-      request.params.id,
-      update,
-      { new: true, runValidators: true, context: 'query' }
-    )
-
-    if (!updatedTenant) {
-      return response.status(404).json({ error: 'Tenant not found' })
-    }
-
-    response.json(updatedTenant)
-  } catch (error) {
-    response.status(400).json({ error: error.message })
-  }
-})
-
 tenantsRouter.post('/', async (request, response,next) => {
   try {
     const { username, name, email, phone, password, shopName, rent } = request.body

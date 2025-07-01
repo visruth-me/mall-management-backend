@@ -1,0 +1,13 @@
+POST http://localhost:3001/api/discounts
+Content-Type: application/json
+
+{
+  "shopID": "64fc8c5a2d7d4b001f3a45b1",
+  "title": "Summer Sale Bonanza",
+  "description": "Get up to 30% off on all items at Glow Fashion Hub this summer!",
+  "percentage": 30,
+  "validFrom": "2025-07-01T00:00:00.000Z",
+  "validTill": "2025-07-31T23:59:59.000Z",
+  "isActive": true,
+  "isApproved": true
+}

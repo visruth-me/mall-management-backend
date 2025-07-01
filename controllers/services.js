@@ -7,8 +7,22 @@ serviceRouter.get('/all',async(request,response) => {
 })
 
 serviceRouter.get('/',async(request,response) => {
-  const services = await Service.find({ isAvailable: true })
+  const services = await Service.find({ isAvailable : 'true' })
   response.json(services)
+})
+
+serviceRouter.get('/one',async(request,response) => {
+  try{
+    const { name } = request.query
+    if(!name) {
+      return response.status(400).json({ error: 'Name query parameter required' })
+    }
+
+    const service = await Service.findOne({ name })
+    response.json(service)
+  } catch {
+    response.status(500).json({ error: 'Failed to fetch service name' })
+  }
 })
 
 serviceRouter.post('/',async(request,response,next) => {

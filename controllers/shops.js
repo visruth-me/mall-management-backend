@@ -19,10 +19,10 @@ shopsRouter.get('/names', async (request, response) => {
     }
 
     const query = category === 'All' ? {} : { category }
-    const shops = await Shop.find(query, 'name')
+    const shops = await Shop.find(query)
 
-    const shopNames = shops.map(shop => shop.name)
-    response.json(shopNames)
+    {/*const shopNames = shops.map(shop => shop.name)*/}
+    response.json(shops)
 
   } catch {
     response.status(500).json({ error: 'Failed to fetch shop names' })

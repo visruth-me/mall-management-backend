@@ -9,8 +9,24 @@ discountRouter.get('/all',async(request,response) => {
 })
 
 discountRouter.get('/',async(request,response) => {
-  const discounts = await Discount.find({ isApproved: true, isActive: true })
+  const discounts = await Discount.find({ isApproved: 'Approved', isActive: true })
   response.json(discounts)
+})
+
+discountRouter.get('/approve',async(request,response) => {
+  const discounts = await Discount.find({ isApproved: 'Pending' })
+    .populate({ path: 'shopID', select: 'name' })
+
+  const updatedDiscounts = discounts.map(d => ({
+    id: d.id,
+    shopName: d.shopID.name,
+    title: d.title,
+    description: d.description,
+    percentage: d.percentage,
+    validFrom: d.validFrom,
+    validTill: d.validTill,
+  }))
+  response.json(updatedDiscounts)
 })
 
 discountRouter.post('/',async(request,response,next) => {
@@ -87,4 +103,5 @@ discountRouter.delete('/:id', async(request,response) => {
     response.status(500).json({ error: 'Failed to delete discount' })
   }
 })
+
 module.exports=discountRouter

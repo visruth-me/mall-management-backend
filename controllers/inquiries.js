@@ -7,6 +7,11 @@ inquiryRouter.get('/',async(request,response) => {
   response.json(inquiries)
 })
 
+inquiryRouter.get('/approve',async(request,response) => {
+  const inquiries = await Inquiry.find({ isApproved: 'Pending' })
+  response.json(inquiries)
+})
+
 inquiryRouter.post('/',async(request,response,next) => {
   let userId
   try{

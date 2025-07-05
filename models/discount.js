@@ -35,8 +35,9 @@ const discountSchema = new mongoose.Schema({
     default: true
   },
   isApproved:{
-    type: Boolean,
-    default: false
+    type: String,
+    enum: ['Pending', 'Approved', 'Rejected'],
+    default: 'Pending',
   },
   createdAt:{
     type:Date,

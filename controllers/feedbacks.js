@@ -3,9 +3,24 @@ const Feedback = require('../models/feedback')
 const Shop = require('../models/shop')
 const helper = require('./getToken')
 
-feedbackRouter.get('/',async(request,response) => {
-  const feedbacks = await Feedback.find({})
-  response.json(feedbacks)
+feedbackRouter.get('/',async(request, response, next) => {
+  try {
+    const feedbacks = await Feedback.find({})
+      .populate({ path: 'customerID', select: 'username' })
+      .populate({ path: 'shopID', select: 'name' })
+
+    const updatedFeedbacks = feedbacks.map(fb => ({
+      id: fb.id,
+      username: fb.customerID.username,
+      shopName: fb.shopID.name,
+      rating: fb.rating,
+      description: fb.description
+    }))
+
+    response.json(updatedFeedbacks)
+  } catch(error) {
+    next(error)
+  }
 })
 
 feedbackRouter.post('/',async(request,response, next) => {
@@ -55,5 +70,24 @@ feedbackRouter.get('/shop/:shopID',async (request,response) => {
   }
 })
 
+
+feedbackRouter.get('/shop/:tenantID',async (request,response) => {
+  try {
+    const { tenantID } = request.params
+    const shop = await Shop.findOne({ tenantID: tenantID })
+    if (!shop) {
+      return response.status(404).json({ message: 'No feedbacks found' })
+    }
+
+    const feedbacks = await Feedback.find({ shopID: shop._id })
+    if (feedbacks.length === 0) {
+      return response.status(404).json({ message: 'No feedbacks found for this shop' })
+    }
+
+    response.json(feedbacks)
+  } catch {
+    response.status(500).json({ error: 'Failed to fetch feedbacks' })
+  }
+})
 
 module.exports=feedbackRouter
